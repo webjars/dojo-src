@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+
+    <packaging>jar</packaging>
+    <groupId>org.webjars</groupId>
+    <artifactId>dojo-src</artifactId>
+    <version>1.9.4-SNAPSHOT</version>
+    <name>dojo-src</name>
+    <description>WebJar for Dojo SRC</description>
+    <url>http://webjars.org</url>
+
+    <licenses>
+        <license>
+            <name>The "New" BSD License</name>
+            <url>http://bugs.dojotoolkit.org/browser/dojo-src/trunk/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+        <license>
+            <name>The Academic Free License, v. 2.1</name>
+            <url>http://bugs.dojotoolkit.org/browser/dojo-src/trunk/LICENSE</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>http://github.com/webjars/dojo-src</url>
+        <connection>scm:git:https://github.com/webjars/dojo-src.git</connection>
+        <developerConnection>scm:git:https://github.com/webjars/dojo-src.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>jamesward</id>
+            <name>James Ward</name>
+            <email>james@jamesward.org</email>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dojo.version>1.9.3</dojo.version>
+        <dojo.url>http://download.dojotoolkit.org/release-${dojo.version}</dojo.url>
+        <destDir>${project.build.outputDirectory}/META-INF/resources/webjars/dojo-src/${dojo.version}</destDir>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>1.0-beta-4</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals><goal>download-single</goal></goals>
+                        <configuration>
+                            <url>${dojo.url}</url>
+                            <fromFile>dojo-release-${dojo.version}-src.zip</fromFile>
+                            <toFile>${project.build.directory}/dojo-src.zip</toFile>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals><goal>run</goal></goals>
+                        <configuration>
+                            <target>
+                                <echo message="unzip archive" />
+                                <unzip src="${project.build.directory}/dojo-src.zip" dest="${project.build.directory}/dojo-src" />
+                                <echo message="moving resources" />
+                                <move todir="${destDir}" overwrite="true" verbose="true">
+                                    <fileset dir="${project.build.directory}/dojo-src/dojo-release-${dojo.version}-src" />
+                                </move>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.5.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>sonatype-nexus-staging</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
